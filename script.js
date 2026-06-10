@@ -205,12 +205,14 @@ function initLibraries() {
   // Custom marked renderer — intercept code blocks for mermaid + copy buttons
   const renderer = new marked.Renderer();
 
-  renderer.code = function (code, lang) {
-    // Mermaid diagrams
+  renderer.code = function (codeOrToken, langArg) {
+    // marked v4: code(code, lang)  |  marked v5+: code({text, lang, ...})
+    const code = (codeOrToken && typeof codeOrToken === 'object') ? (codeOrToken.text || '') : (codeOrToken || '');
+    const lang = (codeOrToken && typeof codeOrToken === 'object') ? codeOrToken.lang : langArg;
+
     if (lang === 'mermaid') {
       return `<div class="mermaid-wrap"><div class="mermaid">${escapeHtml(code)}</div></div>`;
     }
-    // Syntax highlighted code block
     let highlighted;
     try {
       if (lang && hljs.getLanguage(lang)) {
@@ -234,9 +236,11 @@ function initLibraries() {
     </div><code class="hljs language-${escapeHtml(langLabel)}">${highlighted}</code></pre>`;
   };
 
-  // Heading renderer: add id anchors for TOC
-  renderer.heading = function (text, level) {
-    const slug = slugify(text);
+  // Heading renderer — works with both marked v4 and v5+ token API
+  renderer.heading = function (textOrToken, levelArg) {
+    const text  = (textOrToken && typeof textOrToken === 'object') ? (textOrToken.text || '') : (textOrToken || '');
+    const level = (textOrToken && typeof textOrToken === 'object') ? textOrToken.depth : levelArg;
+    const slug  = slugify(text);
     return `<h${level} id="${slug}">${text}</h${level}>`;
   };
 
@@ -481,7 +485,15 @@ async function loadTopic(path, pushHistory = true) {
 /** Parse and inject markdown into the DOM */
 async function renderMarkdown(markdown, path) {
   const body = document.getElementById('markdown-body');
-  body.innerHTML = marked.parse(markdown);
+  let html;
+  try {
+    html = marked.parse(markdown);
+  } catch (e) {
+    // Fallback: render as plain preformatted text if marked crashes
+    console.warn('GoForge: marked.parse failed, using plain fallback:', e.message);
+    html = `<pre style="white-space:pre-wrap;word-break:break-word;font-family:var(--font-mono);font-size:0.82rem;color:var(--text-secondary)">${escapeHtml(markdown)}</pre>`;
+  }
+  body.innerHTML = html;
 
   // Highlight any remaining unhighlighted code blocks
   document.querySelectorAll('#markdown-body pre code:not(.hljs)').forEach(block => {
