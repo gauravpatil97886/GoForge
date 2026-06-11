@@ -1,19 +1,19 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/Go-1.22+-00ACD7?style=for-the-badge&logo=go&logoColor=white" alt="Go Version"/>
+<img src="https://img.shields.io/badge/Go-1.25+-00ACD7?style=for-the-badge&logo=go&logoColor=white" alt="Go Version"/>
 <img src="https://img.shields.io/badge/Status-Active-F5C000?style=for-the-badge" alt="Status"/>
 <img src="https://img.shields.io/badge/License-MIT-34D058?style=for-the-badge" alt="License"/>
 <img src="https://img.shields.io/badge/Platform-GoForge-FF6B3C?style=for-the-badge" alt="GoForge"/>
-<img src="https://img.shields.io/github/stars/gauravpatil97886/Go-Learning?style=for-the-badge&color=C084FC" alt="Stars"/>
+<img src="https://img.shields.io/github/stars/gauravpatil97886/GoForge?style=for-the-badge&color=C084FC" alt="Stars"/>
 
-# ⬡ GoForge
+# GoForge
 
 ### *Forge Your Go Mastery — From Zero to Production*
 
 **The most comprehensive Go learning platform on GitHub.**  
 Theory + Practice + Interview Prep, all in one place.
 
-[**🚀 Launch Platform →**](https://gauravpatil97886.github.io/Go-Learning/) · [**📚 Browse Topics**](#topics) · [**💡 Practice Questions**](#coding-practice) · [**🏢 Interview Prep**](#interview-prep)
+[**Launch Platform →**](https://gauravpatil97886.github.io/GoForge/) · [**Browse Topics**](#topics) · [**Practice Questions**](#coding-practice) · [**Interview Prep**](#interview-prep)
 
 ---
 
@@ -34,7 +34,7 @@ Advanced Patterns → Interview Questions → Production Scenarios → Company S
 
 ## Topics
 
-### 🏗 Foundations
+### Foundations
 | Topic | Level | What You'll Learn |
 |-------|-------|-------------------|
 | Getting Started | Beginner | Go toolchain, workspace, modules, first program |
@@ -46,7 +46,7 @@ Advanced Patterns → Interview Questions → Production Scenarios → Company S
 | Closures | Intermediate | Capture mechanics, function factories, common pitfalls |
 | Strings & Runes | Beginner | UTF-8 internals, rune vs byte, string manipulation |
 
-### 🔧 Intermediate
+### Intermediate
 | Topic | Level | What You'll Learn |
 |-------|-------|-------------------|
 | Packages & Modules | Intermediate | go.mod, visibility, init(), circular deps |
@@ -56,7 +56,7 @@ Advanced Patterns → Interview Questions → Production Scenarios → Company S
 | Maps | Intermediate | Internals, nil map, concurrent safety, patterns |
 | Type System | Advanced | Type aliases vs definitions, assertions, generics intro |
 
-### ⚡ Concurrency
+### Concurrency
 | Topic | Level | What You'll Learn |
 |-------|-------|-------------------|
 | Goroutines | Intermediate | GMP scheduler, goroutine lifecycle, leaks |
@@ -67,7 +67,7 @@ Advanced Patterns → Interview Questions → Production Scenarios → Company S
 | Context | Advanced | Cancellation trees, deadlines, value propagation |
 | Advanced Patterns | Production | Worker pools, pipelines, rate limiters, circuit breakers |
 
-### 🧠 Advanced
+### Advanced
 | Topic | Level | What You'll Learn |
 |-------|-------|-------------------|
 | Generics | Advanced | Type parameters, constraints, type inference, patterns |
@@ -76,7 +76,7 @@ Advanced Patterns → Interview Questions → Production Scenarios → Company S
 | Memory & GC | Advanced | GC internals, escape analysis, pprof, memory profiles |
 | Performance | Production | CPU profiling, optimization patterns, zero-alloc techniques |
 
-### 🌐 Applications
+### Applications
 | Topic | Level | What You'll Learn |
 |-------|-------|-------------------|
 | HTTP & Web | Intermediate | `net/http`, middleware, routing, WebSockets |
@@ -85,7 +85,7 @@ Advanced Patterns → Interview Questions → Production Scenarios → Company S
 | Microservices | Production | gRPC, service discovery, distributed tracing |
 | CLI Tools | Intermediate | `cobra`, `flag`, config management, shell integration |
 
-### 🎨 Patterns
+### Patterns
 | Pattern | Description |
 |---------|-------------|
 | Design Patterns | All 23 GoF patterns implemented in idiomatic Go |
@@ -101,12 +101,12 @@ Advanced Patterns → Interview Questions → Production Scenarios → Company S
 
 | Level | Name | Description |
 |-------|------|-------------|
-| 🟢 L1 | Beginner | Basic syntax, types, simple programs |
-| 🔵 L2 | Easy | Small problem solving, simple data structures |
-| 🟡 L3 | Medium | Algorithm thinking, logic building |
-| 🟠 L4 | Advanced | Real-world patterns, system design components |
-| 🟣 L5 | Interview | Frequently asked at FAANG/unicorns |
-| 🔴 L6 | Production | Real engineering problems at scale |
+| L1 | Beginner | Basic syntax, types, simple programs |
+| L2 | Easy | Small problem solving, simple data structures |
+| L3 | Medium | Algorithm thinking, logic building |
+| L4 | Advanced | Real-world patterns, system design components |
+| L5 | Interview | Frequently asked at FAANG/unicorns |
+| L6 | Production | Real engineering problems at scale |
 
 Every question includes:
 - Problem statement with constraints
@@ -160,21 +160,56 @@ coding-practice/
 
 ---
 
+## CTC-Wise Preparation
+
+Band-by-band roadmaps for cracking Go roles at every salary level:
+
+| Guide | Target |
+|-------|--------|
+| `ctc-prep/roadmap.md` | The 4 CTC bands, skill matrix, company comparison, sprint plans |
+| `ctc-prep/10-15-lpa.md` | Service companies & startups — fundamentals, 50 DSA problems, 30-day plan |
+| `ctc-prep/15-25-lpa.md` | PhonePe, CRED, Razorpay tier — GMP internals, system design, full interview sim |
+| `ctc-prep/25-plus-lpa.md` | FAANG senior/staff — runtime internals, distributed systems, 90-day plan |
+
+## System Design
+
+Full case studies with Go implementations:
+
+| File | Coverage |
+|------|---------|
+| `system-design/01-fundamentals.md` | 5-step framework, scalability, CAP, consistency, load balancing |
+| `system-design/02-databases-storage.md` | PostgreSQL, Redis, sharding, consistent hashing, CQRS |
+| `system-design/03-caching-messaging.md` | Cache patterns, singleflight, Kafka, outbox, DLQ |
+| `system-design/04-case-studies.md` | URL shortener, rate limiter, notifications, distributed cache, scheduler |
+
+## DSA in Go
+
+100 LeetCode-style problems with complete idiomatic Go solutions:
+
+| File | Problems |
+|------|---------|
+| `dsa-go/01-arrays-strings.md` | Two-sum family, sliding window, strings, matrix (25) |
+| `dsa-go/02-trees-graphs.md` | Trees, BST, BFS/DFS, Dijkstra, Trie, Union-Find (25) |
+| `dsa-go/03-dynamic-programming.md` | 1D/2D/interval/tree DP, knapsack, LIS (25) |
+| `dsa-go/04-concurrency-ds.md` | Thread-safe structures, heap, monotonic stack, build-from-scratch (25) |
+
+---
+
 ## Features
 
 | Feature | Details |
 |---------|---------|
-| 🌙 Dark / Light Mode | Golden dark theme + warm cream light theme, persisted |
-| 🔍 Full-text Search | `Ctrl+K` — instant search across all 63+ topics |
-| 📊 Progress Tracking | Check off topics as you complete them, persisted locally |
-| 🔖 Bookmarks | Bookmark any topic, accessible from the sidebar |
-| 📱 Responsive | Mobile, tablet, desktop — all breakpoints handled |
-| 🗺 Auto TOC | Table of contents auto-generated, highlights current section |
-| 📈 Reading Progress | Bar at top shows position in the current topic |
-| ⌨️ Keyboard Shortcuts | `Ctrl+K` search, `←/→` prev/next topic |
-| 📊 Stats Dashboard | See your overall progress across all categories |
-| 📄 Mermaid Diagrams | Architecture and flow diagrams rendered inline |
-| 🎨 Syntax Highlighting | All Go code blocks highlighted with dark/light theme |
+| Dark / Light Mode | Golden dark theme + clean paper light theme, persisted |
+| Full-text Search | `Ctrl+K` — instant search across all 63+ topics |
+| Progress Tracking | Check off topics as you complete them, persisted locally |
+| Bookmarks | Bookmark any topic, accessible from the sidebar |
+| Responsive | Mobile, tablet, desktop — all breakpoints handled |
+| Auto TOC | Table of contents auto-generated, highlights current section |
+| Reading Progress | Bar at top shows position in the current topic |
+| Keyboard Shortcuts | `Ctrl+K` search, `←/→` prev/next topic |
+| Stats Dashboard | See your overall progress across all categories |
+| Mermaid Diagrams | Architecture and flow diagrams rendered inline |
+| Syntax Highlighting | All Go code blocks highlighted with dark/light theme |
 
 ---
 
@@ -184,7 +219,7 @@ GitHub Pages serves files over HTTP so `fetch()` works. For local development, y
 
 ```bash
 # Option 1: Python (no install needed)
-cd /path/to/Go-Learning
+cd /path/to/GoForge
 python3 -m http.server 8080
 # Open: http://localhost:8080
 
@@ -201,7 +236,7 @@ npx serve .
 
 Deploys automatically to GitHub Pages on every push to `main`.
 
-- **URL:** `https://gauravpatil97886.github.io/Go-Learning/`
+- **URL:** `https://gauravpatil97886.github.io/GoForge/`
 - **Build:** No build step — pure HTML/CSS/JS (`.nojekyll` disables Jekyll)
 - **CDN:** marked.js, highlight.js, mermaid.js loaded from CDN at runtime
 
@@ -232,10 +267,10 @@ Content guidelines are in `STRUCTURE.md`.
 
 <div align="center">
 
-**© 2024 Gaurav Patil — GoForge Platform. All Rights Reserved.**
+**© 2026 Gaurav Patil — GoForge Platform. All Rights Reserved.**
 
 Built with Go's philosophy: simple, clear, and practical.
 
-[⬆ Back to top](#-goforge)
+[Back to top](#-goforge)
 
 </div>

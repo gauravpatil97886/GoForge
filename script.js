@@ -166,6 +166,45 @@ const STATE = {
   tocObserver:    null,
 };
 
+/* ── CONTENT CACHE (stale-while-revalidate) ──────────────────── */
+const CONTENT_CACHE = {
+  prefix: 'gf-md-',
+  maxEntry: 300 * 1024,          // skip caching files > 300KB
+  indexKey: 'gf-md-index',       // LRU order tracking
+
+  get(path) {
+    try { return localStorage.getItem(this.prefix + path); } catch { return null; }
+  },
+
+  set(path, md) {
+    if (md.length > this.maxEntry) return;
+    try {
+      localStorage.setItem(this.prefix + path, md);
+      this.touch(path);
+    } catch {
+      // Quota exceeded — evict the 5 least recently used entries and retry once
+      this.evict(5);
+      try { localStorage.setItem(this.prefix + path, md); this.touch(path); } catch {}
+    }
+  },
+
+  touch(path) {
+    try {
+      let idx = JSON.parse(localStorage.getItem(this.indexKey) || '[]');
+      idx = [path, ...idx.filter(p => p !== path)].slice(0, 60);
+      localStorage.setItem(this.indexKey, JSON.stringify(idx));
+    } catch {}
+  },
+
+  evict(n) {
+    try {
+      const idx = JSON.parse(localStorage.getItem(this.indexKey) || '[]');
+      idx.slice(-n).forEach(p => localStorage.removeItem(this.prefix + p));
+      localStorage.setItem(this.indexKey, JSON.stringify(idx.slice(0, -n)));
+    } catch {}
+  },
+};
+
 /* ── LOCAL STORAGE KEYS ──────────────────────────────────────── */
 const KEYS = {
   progress:  'gf-progress-v2',
@@ -488,9 +527,20 @@ async function loadTopic(path, pushHistory = true) {
     history.replaceState({ path }, '', `#${path}`);
   }
 
-  showPanel('loading');
   trackRecent(path);
   updateActiveNav(path);
+
+  // Serve instantly from cache if available (stale-while-revalidate)
+  const cached = CONTENT_CACHE.get(path);
+  if (cached) {
+    await renderMarkdown(cached, path);
+    CONTENT_CACHE.touch(path);
+    // Revalidate in background — re-render only if content changed
+    revalidateTopic(path, cached);
+    return;
+  }
+
+  showPanel('loading');
 
   const fullUrl = new URL(path, window.location.href).href;
   try {
@@ -501,6 +551,7 @@ async function loadTopic(path, pushHistory = true) {
     if (md.trimStart().startsWith('<!DOCTYPE') || md.trimStart().startsWith('<html')) {
       throw new Error('HTML_RESPONSE');
     }
+    CONTENT_CACHE.set(path, md);
     await renderMarkdown(md, path);
   } catch (err) {
     console.warn('GoForge load failed:', fullUrl, err.message);
@@ -509,20 +560,51 @@ async function loadTopic(path, pushHistory = true) {
     if (!errEl) return;
     if (location.protocol === 'file:') {
       errEl.innerHTML = `<strong>Local file detected:</strong> Use a local server.<br>
-        <code>cd Go-Learning && python3 -m http.server 8080</code><br>
+        <code>cd GoForge && python3 -m http.server 8080</code><br>
         Then open <a href="http://localhost:8080">http://localhost:8080</a>`;
     } else if (err.message === 'HTML_RESPONSE') {
       errEl.innerHTML = `GitHub Pages is still serving an old deployment.<br>
-        <strong>Fix:</strong> Go to your repo <a href="https://github.com/gauravpatil97886/Go-Learning/settings/pages" target="_blank">Settings → Pages</a>
+        <strong>Fix:</strong> Go to your repo <a href="https://github.com/gauravpatil97886/GoForge/settings/pages" target="_blank">Settings → Pages</a>
         and change Source to <strong>GitHub Actions</strong>, then wait 2 minutes.`;
     } else {
       errEl.innerHTML = `Failed to load: <code>${path}</code><br>
         <small>Status: <strong>${err.message}</strong> &nbsp;|&nbsp; URL: <code>${fullUrl}</code></small><br><br>
         GitHub Pages may still be deploying. Wait 2–3 min and refresh.<br>
-        Or go to <a href="https://github.com/gauravpatil97886/Go-Learning/settings/pages" target="_blank">Settings → Pages</a>
+        Or go to <a href="https://github.com/gauravpatil97886/GoForge/settings/pages" target="_blank">Settings → Pages</a>
         and set Source to <strong>GitHub Actions</strong>.`;
     }
   }
+}
+
+/** Background revalidation: fetch fresh copy; re-render only if it changed */
+async function revalidateTopic(path, cachedMd) {
+  try {
+    const res = await fetch(new URL(path, window.location.href).href, { cache: 'no-store' });
+    if (!res.ok) return;
+    const fresh = await res.text();
+    if (fresh.trimStart().startsWith('<!DOCTYPE') || fresh.trimStart().startsWith('<html')) return;
+    if (fresh !== cachedMd) {
+      CONTENT_CACHE.set(path, fresh);
+      // Only re-render if the user is still on this topic
+      if (STATE.currentPath === path) await renderMarkdown(fresh, path);
+    }
+  } catch { /* offline or network error — cached copy stays */ }
+}
+
+/** Prefetch next/prev topics into cache so navigation feels instant */
+function prefetchNeighbors(path) {
+  const idx = STATE.searchIndex.findIndex(t => t.path === path);
+  [STATE.searchIndex[idx + 1], STATE.searchIndex[idx - 1]].forEach(entry => {
+    if (!entry || CONTENT_CACHE.get(entry.path)) return;
+    fetch(new URL(entry.path, window.location.href).href)
+      .then(r => r.ok ? r.text() : null)
+      .then(md => {
+        if (md && !md.trimStart().startsWith('<!DOCTYPE') && !md.trimStart().startsWith('<html')) {
+          CONTENT_CACHE.set(entry.path, md);
+        }
+      })
+      .catch(() => {});
+  });
 }
 
 /** Parse and inject markdown into the DOM */
@@ -601,6 +683,9 @@ async function renderMarkdown(markdown, path) {
   setupReadingProgress();
 
   showPanel('content');
+
+  // Warm the cache for adjacent topics (instant prev/next)
+  prefetchNeighbors(path);
 }
 
 /** Run mermaid on all .mermaid elements */
