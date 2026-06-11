@@ -223,6 +223,12 @@ body, #header, #sidebar, #mobile-nav,
 button { cursor: pointer; font-family: inherit; border: none; background: none; }
 input, textarea { font-family: inherit; }
 
+/* Hidden attribute must always win — author display rules were
+   overriding it and leaving invisible overlays blocking taps */
+#search-modal[hidden],
+#search-overlay[hidden],
+#toc[hidden] { display: none !important; }
+
 /* Custom scrollbars */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
