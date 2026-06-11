@@ -6718,7 +6718,7 @@ func main() {
 
 ```mermaid
 flowchart LR
-    subgraph LRU List
+    subgraph LRUL["LRU List"]
         direction LR
         MRU["MRU: key=1"] --> M["key=3"] --> LRU2["LRU: key=2"]
     end

@@ -1165,21 +1165,33 @@ input, textarea { font-family: inherit; }
 
 /* ── MERMAID DIAGRAMS ──────────────────────────────────────────── */
 .mermaid-wrap {
-  display: flex;
-  justify-content: center;
   margin: 1.5rem 0;
+  max-width: 100%;
 }
 .mermaid {
   max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
   background: var(--bg-card);
   border: 1px solid var(--border-solid);
   border-radius: var(--radius-lg);
   padding: 24px;
+  text-align: center;
 }
+/* Diagrams render at natural size — wide ones scroll instead of shrinking */
 .mermaid svg {
-  max-width: 100%;
-  height: auto;
+  max-width: none;
+  display: inline-block;
+}
+.mermaid-error {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding: 8px;
+}
+@media (max-width: 768px) {
+  .mermaid { padding: 14px 10px; }
 }
 
 /* ── FOOTER NAV (prev/next) ────────────────────────────────────── */

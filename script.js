@@ -403,7 +403,9 @@ function initLibraries() {
     const lang = (codeOrToken && typeof codeOrToken === 'object') ? codeOrToken.lang : langArg;
 
     if (lang === 'mermaid') {
-      return `<div class="mermaid-wrap"><div class="mermaid">${escapeHtml(code)}</div></div>`;
+      // Literal \n in node labels renders as raw text — convert to <br/> line breaks
+      const src = code.replace(/\\n/g, '<br/>');
+      return `<div class="mermaid-wrap"><div class="mermaid" data-mermaid-src="${escapeAttr(src)}">${escapeHtml(src)}</div></div>`;
     }
     let highlighted;
     try {
@@ -439,19 +441,45 @@ function initLibraries() {
   marked.use({ renderer, gfm: true, breaks: false });
 
   // Mermaid
-  mermaid.initialize({
+  mermaid.initialize(mermaidConfig(STATE.theme));
+}
+
+/** Theme-aware mermaid configuration (shared by init + theme toggle) */
+function mermaidConfig(theme) {
+  const dark = theme === 'dark';
+  return {
     startOnLoad:   false,
-    theme:         STATE.theme === 'dark' ? 'dark' : 'default',
+    theme:         dark ? 'dark' : 'default',
     securityLevel: 'loose',
     fontFamily:    'JetBrains Mono, monospace',
-    themeVariables: {
-      background:     '#1a2236',
-      primaryColor:   '#1a2236',
+    // Render at natural size — wide flowcharts scroll instead of shrinking to unreadable
+    flowchart: { useMaxWidth: false, htmlLabels: true, curve: 'basis' },
+    sequence:  { useMaxWidth: false },
+    state:     { useMaxWidth: false },
+    er:        { useMaxWidth: false },
+    journey:   { useMaxWidth: false },
+    themeVariables: dark ? {
+      background:         '#141B2D',
+      primaryColor:       '#1a2236',
+      primaryTextColor:   '#E6EDF3',
       primaryBorderColor: '#00ACD7',
-      lineColor:      '#00ACD7',
-      fontFamily:     'JetBrains Mono, monospace',
+      lineColor:          '#8B949E',
+      secondaryColor:     '#1F2940',
+      tertiaryColor:      '#10182B',
+      fontSize:           '15px',
+      fontFamily:         'JetBrains Mono, monospace',
+    } : {
+      background:         '#FFFFFF',
+      primaryColor:       '#EDF4FB',
+      primaryTextColor:   '#1C1A14',
+      primaryBorderColor: '#0369A1',
+      lineColor:          '#475569',
+      secondaryColor:     '#F4EFE3',
+      tertiaryColor:      '#FAFAF7',
+      fontSize:           '15px',
+      fontFamily:         'JetBrains Mono, monospace',
     },
-  });
+  };
 }
 
 /** Build flat search index from NAVIGATION */
@@ -813,13 +841,30 @@ async function renderMarkdown(markdown, path) {
   prefetchNeighbors(path);
 }
 
-/** Run mermaid on all .mermaid elements */
+/** Run mermaid on all .mermaid elements — one bad diagram must not block the rest */
 async function renderMermaidDiagrams() {
   const nodes = document.querySelectorAll('#markdown-body .mermaid');
   if (!nodes.length) return;
-  try {
-    await mermaid.run({ nodes });
-  } catch (e) { /* mermaid errors are non-fatal */ }
+  for (const node of nodes) {
+    if (node.getAttribute('data-processed')) continue;
+    try {
+      await mermaid.run({ nodes: [node] });
+    } catch (e) {
+      node.classList.add('mermaid-failed');
+      node.innerHTML = '<div class="mermaid-error">Diagram failed to render</div>';
+    }
+  }
+}
+
+/** Reset rendered diagrams back to source so they can re-render (theme change) */
+function resetMermaidDiagrams() {
+  document.querySelectorAll('#markdown-body .mermaid').forEach(el => {
+    const src = el.getAttribute('data-mermaid-src');
+    if (!src) return;
+    el.removeAttribute('data-processed');
+    el.classList.remove('mermaid-failed');
+    el.textContent = src;
+  });
 }
 
 /** Add copy buttons to any pre blocks without chrome */
@@ -1338,16 +1383,11 @@ function applyTheme(theme, save = true) {
       : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
   }
 
-  // Update mermaid theme + re-render diagrams
+  // Update mermaid theme + re-render diagrams from stored source
   try {
-    mermaid.initialize({
-      startOnLoad:   false,
-      theme:         theme === 'dark' ? 'dark' : 'default',
-      securityLevel: 'loose',
-      fontFamily:    'JetBrains Mono, monospace',
-    });
-    const diagrams = document.querySelectorAll('#markdown-body .mermaid');
-    if (diagrams.length) mermaid.run({ nodes: diagrams });
+    mermaid.initialize(mermaidConfig(theme));
+    resetMermaidDiagrams();
+    renderMermaidDiagrams();
   } catch (e) { /* non-fatal */ }
 
   if (save) localStorage.setItem(KEYS.theme, theme);
